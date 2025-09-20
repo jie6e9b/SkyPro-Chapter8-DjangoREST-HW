@@ -1,0 +1,27 @@
+[
+  {
+    "model": "lms.lesson",
+    "pk": 1,
+    "fields": { "course": 1, "name": "Введение в Python", "description": "", "preview": null, "video_url": "" }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 2,
+    "fields": { "course": 1, "name": "Циклы и условия", "description": "", "preview": null, "video_url": "" }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 3,
+    "fields": { "course": 2, "name": "Создание API", "description": "", "preview": null, "video_url": "" }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 4,
+    "fields": { "course": 3, "name": "Сортировки", "description": "", "preview": null, "video_url": "" }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 5,
+    "fields": { "course": 4, "name": "Основы SQL", "description": "", "preview": null, "video_url": "" }
+  }
+]
