@@ -1,0 +1,27 @@
+[
+  {
+    "model": "lms.course",
+    "pk": 1,
+    "fields": { "name": "Python для начинающих" }
+  },
+  {
+    "model": "lms.course",
+    "pk": 2,
+    "fields": { "name": "Django REST Framework" }
+  },
+  {
+    "model": "lms.course",
+    "pk": 3,
+    "fields": { "name": "Алгоритмы и структуры данных" }
+  },
+  {
+    "model": "lms.course",
+    "pk": 4,
+    "fields": { "name": "SQL и базы данных" }
+  },
+  {
+    "model": "lms.course",
+    "pk": 5,
+    "fields": { "name": "Docker и DevOps основы" }
+  }
+]
