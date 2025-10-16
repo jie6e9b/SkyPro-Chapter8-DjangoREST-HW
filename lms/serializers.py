@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
+from lms.models import Payment
 from .models import Course, Lesson, CourseSubscription
 from .validators import validate_video_url_only_youtube
 
@@ -57,3 +58,32 @@ class CourseSubscriptionSerializer(serializers.ModelSerializer):
         model = CourseSubscription
         fields = ["id", "user", "course", "created_at"]
         read_only_fields = ["user", "created_at"]
+
+
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    """Основной сериализатор для платежей"""
+    class Meta:
+        model = Payment
+        fields = [
+            'id', 'user', 'course', 'lesson', 'payment_date',
+            'payment_price', 'payment_status', 'stripe_payment_url'
+        ]
+        read_only_fields = [
+            'payment_date', 'payment_status', 'stripe_payment_url',
+            'stripe_product_id', 'stripe_payment_id'
+        ]
+
+class CreatePaymentSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания платежа"""
+    class Meta:
+        model = Payment
+        fields = ['course', 'lesson']
+
+class PaymentStatusSerializer(serializers.ModelSerializer):
+    """Сериализатор для проверки статуса платежа"""
+    class Meta:
+        model = Payment
+        fields = ['id', 'payment_status', 'payment_date']
+        read_only_fields = ['payment_status', 'payment_date']
