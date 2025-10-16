@@ -1,0 +1,13 @@
+[run]
+branch = True
+source =
+    lms
+    users
+omit =
+    */migrations/*
+    */tests.py
+    manage.py
+
+[report]
+show_missing = True
+skip_covered = True

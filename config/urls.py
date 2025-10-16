@@ -10,9 +10,11 @@ from lms.views import (
     CourseViewSet,
     LessonViewSet,
     subscribe_to_course,
-    unsubscribe_from_course, CourseSubscriptionView,
+    unsubscribe_from_course,
+    CourseSubscriptionView,
+    PaymentViewSet
 )
-from users.views import PaymentViewSet, UserCreateAPIView, UserUpdateAPIView
+from users.views import UserCreateAPIView, UserUpdateAPIView
 
 router = DefaultRouter()
 router.register(r"courses", CourseViewSet, basename="course")
@@ -22,35 +24,42 @@ router.register(r"payments", PaymentViewSet, basename="payment")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
     # API через DRF Router
     path("api/", include(router.urls)),
+
     # Пользователи
-    path("users/<int:pk>/", UserUpdateAPIView.as_view(), name="register"),
-    path("users/register/", UserCreateAPIView.as_view(), name="user-update"),
-    # настройка авторизации  Simple JWT:
+    path("users/<int:pk>/",
+         UserUpdateAPIView.as_view(),
+         name="register"),
     path(
-        "users/login/",
+        "users/register/",
+         UserCreateAPIView.as_view(),
+         name="user-update"),
+    # Авторизация Simple JWT
+    path("users/login/",
         TokenObtainPairView.as_view(permission_classes=(AllowAny,)),
         name="login",
     ),
-    path(
-        "users/token/refresh/",
+    path("users/token/refresh/",
         TokenRefreshView.as_view(permission_classes=(AllowAny,)),
         name="token_refresh",
     ),
     # Подписки
-    path(
-        "courses/<int:course_id>/subscribe/",
+    path("courses/<int:course_id>/subscribe/",
         subscribe_to_course,
         name="course-subscribe",
     ),
-    path(
-        "courses/<int:course_id>/unsubscribe/",
+    path("courses/<int:course_id>/unsubscribe/",
         unsubscribe_from_course,
         name="course-unsubscribe",
     ),
-    path('course/subscription/',
-         CourseSubscriptionView.as_view(),
-         name='course-subscription'),
+    path("course/subscription/",
+        CourseSubscriptionView.as_view(),
+        name="course-subscription",
+    ),
+    path("docs/",
+         include("docs.urls")
+    ),
 
 ]
