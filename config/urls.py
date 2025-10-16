@@ -6,7 +6,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from lms.views import CourseViewSet, LessonViewSet
+from lms.views import (
+    CourseViewSet,
+    LessonViewSet,
+    subscribe_to_course,
+    unsubscribe_from_course, CourseSubscriptionView,
+)
 from users.views import PaymentViewSet, UserCreateAPIView, UserUpdateAPIView
 
 router = DefaultRouter()
@@ -33,4 +38,19 @@ urlpatterns = [
         TokenRefreshView.as_view(permission_classes=(AllowAny,)),
         name="token_refresh",
     ),
+    # Подписки
+    path(
+        "courses/<int:course_id>/subscribe/",
+        subscribe_to_course,
+        name="course-subscribe",
+    ),
+    path(
+        "courses/<int:course_id>/unsubscribe/",
+        unsubscribe_from_course,
+        name="course-unsubscribe",
+    ),
+    path('course/subscription/',
+         CourseSubscriptionView.as_view(),
+         name='course-subscription'),
+
 ]
