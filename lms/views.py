@@ -23,6 +23,9 @@ from lms.paginators import CoursePaginator, LessonPaginator
 from users.permissions import IsModerator, IsOwner
 from lms.stripe_services import StripeService
 
+from .tasks import send_course_update_notification
+from django.forms.models import model_to_dict
+
 
 # =====================================================
 # COURSE VIEWSET
@@ -31,30 +34,42 @@ from lms.stripe_services import StripeService
 class CourseViewSet(viewsets.ModelViewSet):
     """Управление курсами"""
 
-    queryset = Course.objects.all().order_by("id")
-    serializer_class = CourseSerializer
-    pagination_class = CoursePaginator
+    class CourseViewSet(viewsets.ModelViewSet):
+        queryset = Course.objects.all().order_by("id")
+        serializer_class = CourseSerializer
+        pagination_class = CoursePaginator
 
-    def get_permissions(self):
-        action_permissions = {
-            "create": [IsAuthenticated, ~IsModerator],
-            "update": [IsAuthenticated, IsModerator | IsOwner],
-            "partial_update": [IsAuthenticated, IsModerator | IsOwner],
-            "retrieve": [IsAuthenticated, IsModerator | IsOwner],
-            "destroy": [IsAuthenticated, ~IsModerator & IsOwner],
-            "list": [IsAuthenticated],
-        }
-        self.permission_classes = action_permissions.get(self.action, [IsAuthenticated])
-        return [permission() for permission in self.permission_classes]
+        def update(self, request, *args, **kwargs):
+            # Сохраняем старые данные курса
+            instance = self.get_object()
+            old_data = model_to_dict(instance)
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+            # Выполняем обновление
+            response = super().update(request, *args, **kwargs)
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-        if self.action == "list" and not self.request.user.groups.filter(name="Moderators").exists():
-            qs = qs.filter(owner=self.request.user)
-        return qs
+            if response.status_code == status.HTTP_200_OK:
+                # Формируем описание изменений
+                new_data = model_to_dict(instance)
+                changes = []
+
+                fields_to_check = ['name', 'description', 'price']
+                for field in fields_to_check:
+                    if old_data[field] != new_data[field]:
+                        changes.append(f"Изменено поле {field}")
+
+                if changes:
+                    # Асинхронно отправляем уведомления подписчикам
+                    send_course_update_notification.delay(
+                        course_id=instance.id,
+                        course_name=instance.name,
+                        update_details="\n".join(changes)
+                    )
+
+            return response
+
+        def partial_update(self, request, *args, **kwargs):
+            kwargs['partial'] = True
+            return self.update(request, *args, **kwargs)
 
 
 # =====================================================
